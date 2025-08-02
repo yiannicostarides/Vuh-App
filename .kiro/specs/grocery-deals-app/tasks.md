@@ -28,7 +28,11 @@
   - Write unit tests for all database operations
   - _Requirements: 2.3, 6.2, 6.3_
 
-- [ ] 3. Build Kroger API integration service
+- [x] 3. Build Kroger API integration service
+
+
+
+
   - Implement OAuth authentication flow for Kroger API
   - Create KrogerAPIClient class with error handling and rate limiting
   - Write methods to fetch digital coupons and promotional data
@@ -36,7 +40,10 @@
   - Write unit tests with mocked API responses
   - _Requirements: 2.2, 2.6_
 
+
+
 - [ ] 4. Develop Publix web scraping service
+
   - Set up Puppeteer for web scraping with proper error handling
   - Implement PublixScraper class to navigate weekly ad pages
   - Create parsers to extract BOGO and discount information from HTML

@@ -1,4 +1,5 @@
-import winston from 'winston';
+import process from 'process';
+import * as winston from 'winston';
 
 const logFormat = winston.format.combine(
   winston.format.timestamp(),
