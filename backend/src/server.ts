@@ -8,6 +8,7 @@ import dealsRouter from './routes/deals';
 import usersRouter from './routes/users';
 import shoppingListRouter from './routes/shoppingList';
 import notificationsRouter from './routes/notifications';
+import priceComparisonRouter from './routes/priceComparison';
 
 // Load environment variables
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/api/deals', dealsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/shopping-list', shoppingListRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/price-comparison', priceComparisonRouter);
 
 // 404 handler
 app.use('*', (req, res) => {
