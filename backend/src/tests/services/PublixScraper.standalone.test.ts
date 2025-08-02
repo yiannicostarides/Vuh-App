@@ -22,7 +22,7 @@ import puppeteer, { Browser, Page } from 'puppeteer';
 
 const mockPuppeteer = puppeteer as jest.Mocked<typeof puppeteer>;
 
-describe('PublixScraper Unit Tests', () => {
+describe('PublixScraper Standalone Tests', () => {
   let scraper: PublixScraper;
   let mockBrowser: jest.Mocked<Browser>;
   let mockPage: jest.Mocked<Page>;
@@ -252,6 +252,22 @@ describe('PublixScraper Unit Tests', () => {
       expect(result.deals).toHaveLength(1);
       expect(result.deals[0].title).toBe('Valid Deal');
     });
+
+    it('should implement exponential backoff for retries', async () => {
+      const startTime = Date.now();
+      
+      // Mock all attempts to fail
+      mockPage.goto.mockRejectedValue(new Error('Network error'));
+
+      await scraper.scrapeDeals();
+
+      const endTime = Date.now();
+      const totalTime = endTime - startTime;
+      
+      // With exponential backoff: 1000ms + 2000ms = 3000ms minimum
+      // Allow some tolerance for test execution time
+      expect(totalTime).toBeGreaterThan(2500);
+    });
   });
 
   describe('cleanup', () => {
@@ -297,6 +313,59 @@ describe('PublixScraper Unit Tests', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Selector timeout');
+    });
+
+    it('should handle request interception setup', async () => {
+      mockPage.goto.mockResolvedValue({} as any);
+      mockPage.waitForSelector.mockResolvedValue({} as any);
+      mockPage.evaluate
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+
+      await scraper.scrapeDeals();
+
+      expect(mockPage.setRequestInterception).toHaveBeenCalledWith(true);
+      expect(mockPage.on).toHaveBeenCalledWith('request', expect.any(Function));
+    });
+  });
+
+  describe('browser configuration', () => {
+    it('should launch browser with proper security settings', async () => {
+      mockPage.goto.mockResolvedValue({} as any);
+      mockPage.waitForSelector.mockResolvedValue({} as any);
+      mockPage.evaluate
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+
+      await scraper.scrapeDeals();
+
+      expect(mockPuppeteer.launch).toHaveBeenCalledWith({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu'
+        ]
+      });
+    });
+
+    it('should configure page with proper settings', async () => {
+      mockPage.goto.mockResolvedValue({} as any);
+      mockPage.waitForSelector.mockResolvedValue({} as any);
+      mockPage.evaluate
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+
+      await scraper.scrapeDeals();
+
+      expect(mockPage.setUserAgent).toHaveBeenCalledWith(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      );
+      expect(mockPage.setViewport).toHaveBeenCalledWith({ width: 1920, height: 1080 });
     });
   });
 });

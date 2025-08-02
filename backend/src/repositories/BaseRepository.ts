@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult } from 'pg';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { pool } from '../config/database';
 import { logger } from '../utils/logger';
 
@@ -12,7 +12,7 @@ export abstract class BaseRepository {
   /**
    * Execute a query with parameters
    */
-  protected async query<T = any>(
+  protected async query<T extends QueryResultRow = any>(
     text: string,
     params?: any[]
   ): Promise<QueryResult<T>> {
@@ -57,13 +57,13 @@ export abstract class BaseRepository {
       `SELECT 1 FROM ${tableName} WHERE id = $1 LIMIT 1`,
       [id]
     );
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   /**
    * Get a record by ID
    */
-  protected async findById<T>(
+  protected async findById<T extends QueryResultRow>(
     tableName: string,
     id: string,
     columns: string = '*'
@@ -83,7 +83,7 @@ export abstract class BaseRepository {
       `UPDATE ${tableName} SET is_active = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
       [id]
     );
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   /**

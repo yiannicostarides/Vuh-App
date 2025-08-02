@@ -46,6 +46,10 @@
 
 - [ ] 4. Develop Publix web scraping service
 
+
+
+
+
   - Set up Puppeteer for web scraping with proper error handling
   - Implement PublixScraper class to navigate weekly ad pages
   - Create parsers to extract BOGO and discount information from HTML
@@ -53,7 +57,13 @@
   - Write integration tests with mock HTML pages
   - _Requirements: 2.1, 2.6_
 
-- [ ] 5. Create deal aggregation and management service
+- [x] 5. Create deal aggregation and management service
+
+
+
+
+
+
   - Implement DealAggregator class to coordinate data collection
   - Add data validation and normalization for deals from different sources
   - Create scheduled jobs to refresh deal data periodically

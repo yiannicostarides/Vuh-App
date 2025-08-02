@@ -49,7 +49,7 @@ export class DealRepository extends BaseRepository {
   /**
    * Get deal by ID
    */
-  async findById(id: string): Promise<Deal | null> {
+  async findDealById(id: string): Promise<Deal | null> {
     const query = `
       SELECT d.*, 
              COALESCE(
@@ -172,7 +172,7 @@ export class DealRepository extends BaseRepository {
     ]);
 
     const deals = await Promise.all(
-      dealsResult.rows.map(row => this.findById(row.id))
+      dealsResult.rows.map(row => this.findDealById(row.id))
     );
 
     return {
@@ -203,7 +203,7 @@ export class DealRepository extends BaseRepository {
     });
 
     if (updates.length === 0) {
-      return this.findById(id);
+      return this.findDealById(id);
     }
 
     updates.push(`updated_at = CURRENT_TIMESTAMP`);
@@ -217,7 +217,7 @@ export class DealRepository extends BaseRepository {
     `;
 
     const result = await this.query<DealRecord>(query, values);
-    return result.rows[0] ? this.findById(result.rows[0].id) : null;
+    return result.rows[0] ? this.findDealById(result.rows[0].id) : null;
   }
 
   /**
@@ -238,7 +238,7 @@ export class DealRepository extends BaseRepository {
     `;
 
     const result = await this.query<DealRecord>(query);
-    return Promise.all(result.rows.map(row => this.findById(row.id))).then(
+    return Promise.all(result.rows.map(row => this.findDealById(row.id))).then(
       deals => deals.filter(deal => deal !== null) as Deal[]
     );
   }
@@ -330,7 +330,7 @@ export class DealRepository extends BaseRepository {
       itemIds: record.itemIds || [],
       restrictions: record.restrictions,
       imageUrl: record.imageUrl,
-      storeLocations: [], // Will be populated by findById
+      storeLocations: [], // Will be populated by findDealById
       createdAt: record.createdAt,
       updatedAt: record.updatedAt
     };
