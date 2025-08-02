@@ -184,15 +184,49 @@ export interface DealRecord extends Omit<Deal, 'storeLocations'> {
   sourceUrl?: string;
 }
 
-export interface StoreLocationRecord extends StoreLocation {
+export interface StoreLocationRecord extends Omit<StoreLocation, 'hours'> {
   // Database-specific fields
   isActive: boolean;
+  // Store hours as individual database fields
+  hours_monday_open?: string;
+  hours_monday_close?: string;
+  hours_monday_closed?: boolean;
+  hours_tuesday_open?: string;
+  hours_tuesday_close?: string;
+  hours_tuesday_closed?: boolean;
+  hours_wednesday_open?: string;
+  hours_wednesday_close?: string;
+  hours_wednesday_closed?: boolean;
+  hours_thursday_open?: string;
+  hours_thursday_close?: string;
+  hours_thursday_closed?: boolean;
+  hours_friday_open?: string;
+  hours_friday_close?: string;
+  hours_friday_closed?: boolean;
+  hours_saturday_open?: string;
+  hours_saturday_close?: string;
+  hours_saturday_closed?: boolean;
+  hours_sunday_open?: string;
+  hours_sunday_close?: string;
+  hours_sunday_closed?: boolean;
 }
 
-export interface UserRecord extends User {
+export interface UserRecord extends Omit<User, 'preferences' | 'location'> {
   // Database-specific fields
   lastLoginAt?: Date;
   isActive: boolean;
+  // User preferences as individual database fields
+  max_radius?: number;
+  preferred_stores?: string[];
+  categories?: string[];
+  notification_deal_expiration?: boolean;
+  notification_new_deals?: boolean;
+  notification_price_drops?: boolean;
+  notification_push_enabled?: boolean;
+  // User location as individual database fields
+  location_latitude?: number;
+  location_longitude?: number;
+  location_last_updated?: Date;
 }
 
 // MARK: - Enums
