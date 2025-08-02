@@ -42,6 +42,8 @@
 
 
 
+
+
 - [ ] 4. Develop Publix web scraping service
 
   - Set up Puppeteer for web scraping with proper error handling

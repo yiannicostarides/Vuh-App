@@ -128,7 +128,7 @@ export class PublixScraper {
       // Look for BOGO deal elements (these selectors may need adjustment based on actual HTML)
       const bogoElements = document.querySelectorAll('[data-deal-type="bogo"], .bogo-deal, .buy-one-get-one');
       
-      bogoElements.forEach((element) => {
+      bogoElements.forEach((element: Element) => {
         try {
           const titleElement = element.querySelector('.deal-title, .product-title, h3, h4');
           const descElement = element.querySelector('.deal-description, .product-description, .description');
@@ -179,7 +179,7 @@ export class PublixScraper {
       // Look for discount deal elements
       const discountElements = document.querySelectorAll('.discount-deal, .sale-item, .weekly-ad-item');
       
-      discountElements.forEach((element) => {
+      discountElements.forEach((element: Element) => {
         try {
           const titleElement = element.querySelector('.deal-title, .product-title, h3, h4');
           const descElement = element.querySelector('.deal-description, .product-description, .description');
@@ -236,18 +236,37 @@ export class PublixScraper {
     const validUntil = new Date(currentDate);
     validUntil.setDate(validUntil.getDate() + 7); // Assume weekly deals are valid for 7 days
 
-    return rawDeals.map((deal) => ({
-      title: deal.title,
-      description: deal.description,
-      originalPrice: deal.originalPrice,
-      salePrice: deal.salePrice,
-      dealType,
-      validFrom,
-      validUntil,
-      category: deal.category,
-      imageUrl: deal.imageUrl || undefined,
-      restrictions: undefined
-    }));
+    return rawDeals
+      .filter((deal) => {
+        // Filter out invalid deals
+        if (!deal.title || !deal.originalPrice || !deal.salePrice) {
+          return false;
+        }
+        
+        // For discount deals, ensure there's actually a discount
+        if (dealType === DealType.DISCOUNT) {
+          return deal.originalPrice > deal.salePrice && deal.salePrice > 0;
+        }
+        
+        // For BOGO deals, ensure prices are valid
+        if (dealType === DealType.BOGO) {
+          return deal.originalPrice > 0 && deal.salePrice > 0;
+        }
+        
+        return true;
+      })
+      .map((deal) => ({
+        title: deal.title,
+        description: deal.description,
+        originalPrice: deal.originalPrice,
+        salePrice: deal.salePrice,
+        dealType,
+        validFrom,
+        validUntil,
+        category: deal.category,
+        imageUrl: deal.imageUrl || undefined,
+        restrictions: undefined
+      }));
   }
 
   /**

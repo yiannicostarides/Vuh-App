@@ -1,12 +1,35 @@
+/**
+ * @jest-environment node
+ */
+
+// Mock the database setup to prevent connection attempts
+jest.mock('../../tests/setup', () => ({
+  setupTestDatabase: jest.fn(),
+  cleanTestDatabase: jest.fn(),
+  closeTestDatabase: jest.fn(),
+}));
+
+// Mock the logger to avoid any database dependencies
+jest.mock('../../utils/logger', () => ({
+  logger: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  }
+}));
+
+// Mock puppeteer
+jest.mock('puppeteer', () => ({
+  launch: jest.fn(),
+}));
+
 import { PublixScraper, ScrapingResult } from '../../services/PublixScraper';
 import { DealType } from '../../types/models';
 import puppeteer, { Browser, Page } from 'puppeteer';
 
-// Mock puppeteer
-jest.mock('puppeteer');
 const mockPuppeteer = puppeteer as jest.Mocked<typeof puppeteer>;
 
-describe('PublixScraper', () => {
+describe('PublixScraper Unit Tests', () => {
   let scraper: PublixScraper;
   let mockBrowser: jest.Mocked<Browser>;
   let mockPage: jest.Mocked<Page>;
@@ -35,7 +58,9 @@ describe('PublixScraper', () => {
   });
 
   afterEach(async () => {
-    await scraper.cleanup();
+    if (scraper) {
+      await scraper.cleanup();
+    }
     jest.clearAllMocks();
   });
 
@@ -166,7 +191,9 @@ describe('PublixScraper', () => {
 
     it('should set proper date ranges for deals', async () => {
       const mockDate = new Date('2024-01-15T10:00:00Z');
-      jest.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
+      const originalDate = global.Date;
+      global.Date = jest.fn(() => mockDate) as any;
+      global.Date.now = originalDate.now;
 
       mockPage.goto.mockResolvedValue({} as any);
       mockPage.waitForSelector.mockResolvedValue({} as any);
@@ -192,7 +219,45 @@ describe('PublixScraper', () => {
       expectedValidUntil.setDate(expectedValidUntil.getDate() + 7);
       expect(result.deals[0].validUntil).toEqual(expectedValidUntil);
 
-      jest.restoreAllMocks();
+      global.Date = originalDate;
+    });
+
+    it('should filter out deals with invalid prices', async () => {
+      mockPage.goto.mockResolvedValue({} as any);
+      mockPage.waitForSelector.mockResolvedValue({} as any);
+
+      // Mock deals with invalid prices
+      mockPage.evaluate
+        .mockResolvedValueOnce([]) // BOGO deals
+        .mockResolvedValueOnce([
+          {
+            title: 'Invalid Deal 1',
+            description: 'No discount',
+            originalPrice: 5.99,
+            salePrice: 5.99, // Same price, no discount
+            category: 'Test'
+          },
+          {
+            title: 'Invalid Deal 2',
+            description: 'Zero price',
+            originalPrice: 5.99,
+            salePrice: 0, // Zero sale price
+            category: 'Test'
+          },
+          {
+            title: 'Valid Deal',
+            description: 'Real discount',
+            originalPrice: 5.99,
+            salePrice: 3.99,
+            category: 'Test'
+          }
+        ]);
+
+      const result = await scraper.scrapeDeals();
+
+      expect(result.success).toBe(true);
+      expect(result.deals).toHaveLength(1);
+      expect(result.deals[0].title).toBe('Valid Deal');
     });
   });
 
@@ -214,6 +279,31 @@ describe('PublixScraper', () => {
     it('should handle cleanup when browser is not initialized', async () => {
       // Should not throw error
       await expect(scraper.cleanup()).resolves.not.toThrow();
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle page evaluation errors gracefully', async () => {
+      mockPage.goto.mockResolvedValue({} as any);
+      mockPage.waitForSelector.mockResolvedValue({} as any);
+      
+      // Mock page.evaluate to throw an error
+      mockPage.evaluate.mockRejectedValue(new Error('Page evaluation failed'));
+
+      const result = await scraper.scrapeDeals();
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Page evaluation failed');
+    });
+
+    it('should handle selector timeout errors', async () => {
+      mockPage.goto.mockResolvedValue({} as any);
+      mockPage.waitForSelector.mockRejectedValue(new Error('Selector timeout'));
+
+      const result = await scraper.scrapeDeals();
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Selector timeout');
     });
   });
 });
