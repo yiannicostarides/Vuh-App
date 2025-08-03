@@ -103,7 +103,9 @@
   - _Requirements: 4.1, 4.2, 4.3, 4.5_
 -
 
-- [-] 8. Set up iOS project core architecture
+- [x] 8. Set up iOS project core architecture
+
+
 
 
 
@@ -115,6 +117,8 @@
   - Write unit tests for core services
   - _Requirements: 1.1, 1.4, 5.3, 6.1, 6.5_
 
+
+
 - [ ] 9. Build iOS deal browser and main app interface
 
 
@@ -124,6 +128,7 @@
   - Add deal detail views with save-to-list functionality
 
   - Create swipe actions for adding deals to shopping list
+
   - Write UI tests for deal browsing and interaction
   - _Requirements: 3.1, 3.3, 5.1, 5.2_
 
@@ -134,7 +139,9 @@
   - Create ShoppingListView with filtering by category and store
   - Implement swipe actions for adding and removing list items
   - Add highlighting for items with upcoming sales
+
   - Create category and store filter controls
+
   - Write unit tests for shopping list operations
   - _Requirements: 3.1, 3.2, 3.3_
 
@@ -144,7 +151,9 @@
 
   - Create price comparison views that display multi-store analysis
   - Add visual indicators for best-value options and cheapest store tags
+
   - Implement distance consideration in store ranking display
+
   - Create data freshness indicators for stale price information
   - Write UI tests for price comparison displays
   - _Requirements: 4.3, 4.4, 4.6_
@@ -177,6 +186,9 @@
 
 
   - Implement Core Data caching for deals, stores, and shopping lists
+
+
+
   - Add offline mode detection and appropriate UI indicators
   - Create background sync when connectivity is restored
 
@@ -184,6 +196,7 @@
 
   - Write tests for offline scenarios and data synchronization
   - _Requirements: 5.3, 5.4_
+
 
 - [ ] 15. Implement error handling and user feedback
 
@@ -201,6 +214,8 @@
 
 
 
+
+
   - Implement HTTPS certificate pinning in iOS API client
   - Add data encryption for sensitive information in Core Data
   - Create privacy settings and data deletion functionality
@@ -209,12 +224,15 @@
   - _Requirements: 6.1, 6.2, 6.4, 6.5, 6.6_
 
 
-- [ ] 17. Optimize performance and resource usage
+
+- [-] 17. Optimize performance and resource usage
+
 
 
   - Implement efficient image loading and caching for deal images
   - Add database query optimization and indexing
   - Create memory management optimizations for widget
+
   - Implement progressive loading for large deal lists
   - Write performance tests and memory usage validation
   - _Requirements: 5.1, 5.5, 5.6_
@@ -222,6 +240,9 @@
 
 
 - [ ] 18. Create comprehensive test coverage
+
+
+
 
 
   - Write end-to-end tests for complete user journeys
