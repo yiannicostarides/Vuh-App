@@ -1,6 +1,6 @@
 # Grocery Deals App
 
-A comprehensive iOS application with backend services that helps users discover and track grocery deals across multiple stores through location-based services, automated deal scraping, and personalized shopping lists.
+A comprehensive iOS application with backend services that helps users discover and track grocery deals across multiple stores through location-based services, automated deal scraping, and personalized shopping lists. - Personal use only
 
 ## Features
 
