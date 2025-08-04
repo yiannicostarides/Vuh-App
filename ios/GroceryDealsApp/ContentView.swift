@@ -24,16 +24,7 @@ struct ContentView: View {
     }
 }
 
-// Placeholder views for main app components
-struct DealBrowserView: View {
-    var body: some View {
-        NavigationView {
-            Text("Deal Browser")
-                .navigationTitle("Deals")
-        }
-    }
-}
-
+// Placeholder views for other app components
 struct ShoppingListView: View {
     var body: some View {
         NavigationView {

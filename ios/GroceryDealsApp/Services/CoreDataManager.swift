@@ -305,6 +305,44 @@ class CoreDataManager: ObservableObject {
         )
     }
     
+    // MARK: - Shopping List Operations
+    
+    func saveShoppingListItem(_ item: ShoppingListItem) {
+        let context = persistentContainer.viewContext
+        
+        let cachedItem = CachedShoppingListItem(context: context)
+        cachedItem.id = item.id
+        cachedItem.userId = item.userId
+        cachedItem.dealId = item.dealId
+        cachedItem.itemName = item.itemName
+        cachedItem.quantity = Int32(item.quantity)
+        cachedItem.priority = item.priority.rawValue
+        cachedItem.addedAt = item.addedAt
+        cachedItem.category = item.category
+        cachedItem.notes = item.notes
+        cachedItem.lastUpdated = Date()
+        
+        save()
+    }
+    
+    func fetchCachedDeals() -> [Deal] {
+        let context = persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<CachedDeal> = CachedDeal.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CachedDeal.lastUpdated, ascending: false)]
+        
+        do {
+            let cachedDeals = try context.fetch(fetchRequest)
+            let deals = cachedDeals.compactMap { cachedDeal -> Deal? in
+                return convertCachedDealToDeal(cachedDeal)
+            }
+            lastError = nil
+            return deals
+        } catch {
+            lastError = .fetchFailed(error)
+            return []
+        }
+    }
+    
     // MARK: - Cache Management
     
     func clearCache() async {

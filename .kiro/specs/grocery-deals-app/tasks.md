@@ -119,7 +119,9 @@
 
 
 
-- [ ] 9. Build iOS deal browser and main app interface
+- [x] 9. Build iOS deal browser and main app interface
+
+
 
 
   - Create DealBrowserView with grid/list display of deals
