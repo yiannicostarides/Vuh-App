@@ -3,12 +3,16 @@ import Combine
 
 @MainActor
 class DealAPIClient: ObservableObject {
+    static let shared = DealAPIClient()
+    
     private let baseURL = "http://localhost:3000/api"
     private let session = URLSession.shared
     private var cancellables = Set<AnyCancellable>()
     
     @Published var isLoading = false
     @Published var lastError: APIError?
+    
+    private init() {}
     
     // MARK: - Deal Endpoints
     
@@ -152,7 +156,7 @@ class DealAPIClient: ObservableObject {
         }
     }
     
-    func fetchShoppingList() async throws -> [ShoppingListItem] {
+    func fetchShoppingListItems() async throws -> [ShoppingListItem] {
         isLoading = true
         defer { isLoading = false }
         
@@ -181,6 +185,119 @@ class DealAPIClient: ObservableObject {
             
             lastError = nil
             return items
+            
+        } catch let error as APIError {
+            lastError = error
+            throw error
+        } catch {
+            let apiError = APIError.networkError(error)
+            lastError = apiError
+            throw apiError
+        }
+    }
+    
+    func addShoppingListItem(_ item: ShoppingListItem) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        
+        guard let url = URL(string: "\(baseURL)/shopping-list/items") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            request.httpBody = try encoder.encode(item)
+            
+            let (_, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.invalidResponse
+            }
+            
+            guard 200...299 ~= httpResponse.statusCode else {
+                throw APIError.serverError(httpResponse.statusCode)
+            }
+            
+            lastError = nil
+            
+        } catch let error as APIError {
+            lastError = error
+            throw error
+        } catch {
+            let apiError = APIError.networkError(error)
+            lastError = apiError
+            throw apiError
+        }
+    }
+    
+    func updateShoppingListItem(_ item: ShoppingListItem) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        
+        guard let url = URL(string: "\(baseURL)/shopping-list/items/\(item.id)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            request.httpBody = try encoder.encode(item)
+            
+            let (_, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.invalidResponse
+            }
+            
+            guard 200...299 ~= httpResponse.statusCode else {
+                throw APIError.serverError(httpResponse.statusCode)
+            }
+            
+            lastError = nil
+            
+        } catch let error as APIError {
+            lastError = error
+            throw error
+        } catch {
+            let apiError = APIError.networkError(error)
+            lastError = apiError
+            throw apiError
+        }
+    }
+    
+    func removeShoppingListItem(_ itemId: String) async throws {
+        isLoading = true
+        defer { isLoading = false }
+        
+        guard let url = URL(string: "\(baseURL)/shopping-list/items/\(itemId)") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            let (_, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw APIError.invalidResponse
+            }
+            
+            guard 200...299 ~= httpResponse.statusCode else {
+                throw APIError.serverError(httpResponse.statusCode)
+            }
+            
+            lastError = nil
             
         } catch let error as APIError {
             lastError = error
